@@ -81,7 +81,8 @@ class TTS:
 
         audio = gTTS(text=text, lang="en")
 
-        #audio.save("audio.wav") - to save local audio
+        audio.save("audio.wav")
+        bytes = io.BytesIO(open("audio.wav", "rb").read())
         #os.system("audio.wav") - to play local saved audio
 
-        return audio
+        return "audio.wav"

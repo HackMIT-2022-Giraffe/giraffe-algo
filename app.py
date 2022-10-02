@@ -1,6 +1,6 @@
-from flask import Flask, render_template_string, request, session, redirect, url_for
+from flask import Flask, render_template_string, request, session, redirect, url_for, send_file
 
-from pdf.pdf import PDF
+from pdf.pdf import PDF, TTS
 from dotenv import load_dotenv
 import os
 
@@ -10,6 +10,12 @@ load_dotenv()
 """"Set up flask application"""
 app = Flask(__name__)
 app.secret_key = 'SECRET_KEY'
+
+# Testing code below
+
+
+
+# Testing code above
 
 @app.route("/upload", methods=['POST', 'GET'])
 def upload():
@@ -23,9 +29,10 @@ def upload():
     else:
         return "Unable to perform operation, too few operands"
 
-@app.route("/transcript", methods=['GET'])
+@app.route("/speech", methods=['POST'])
 def transcript():
-    return session['files'][-1].generateTranscript()
+    speech_obj = TTS(request.form['transcript'])
+    return send_file(speech_obj.textToSpeech())
 
 @app.route("/", methods=['GET'])
 def set_session():
