@@ -20,7 +20,7 @@ class PDF:
         
 
     def __extractFeatures(self):
-        pdf_file = fitz.open("pdf", self.source)
+        pdf_file = fitz.open(self.source)
         images = defaultdict(list)
         text = defaultdict(list)
 
@@ -91,7 +91,7 @@ class TTS:
         audio_config = texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.MP3
         )
-
+        
         response = client.synthesize_speech(
             input=synthesis_input,
             voice=voice,

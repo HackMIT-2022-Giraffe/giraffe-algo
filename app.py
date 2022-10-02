@@ -1,33 +1,51 @@
-from flask import Flask, render_template_string, request, session, redirect, url_for
+from flask import Flask, jsonify, render_template_string, request, session, redirect, url_for, send_file
 
-from pdf.pdf import PDF
+from pdf.pdf import PDF, TTS
 from dotenv import load_dotenv
 import os
+from flask_cors import CORS
+
 
 """Load env environment variables as os environment variables"""
 load_dotenv()
 
 """"Set up flask application"""
 app = Flask(__name__)
+
 app.secret_key = 'SECRET_KEY'
+app.config["UPLOAD_FOLDER"] = "./data/"
+CORS(app)
+cache = {}
 
-@app.route("/upload", methods=['POST', 'GET'])
-def upload():
-    if request.form['uuid'] and request.form['pdf']:
-        session['uuid'] = request.form['uuid']
-        print("HI")
+import uuid
+
+# Testing code above
+@app.route('/upload-file', methods=['POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if not request.files:
+            return "no file uploaded", 400
+        file = request.files['pdf']
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            return "invalid filename", 400
         
-        pdf_obj = PDF(request.form['pdf'], 0, os.getenv('GPT3_API_KEY'))
-        session['files'].append(pdf_obj)
-        return "File successfully uploaded"
-    else:
-        return "Unable to perform operation, too few operands"
+        if file:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+            pdf_obj = PDF(os.path.join(app.config['UPLOAD_FOLDER'], file.filename), 0, os.getenv("GPT3_API_KEY"))
+            key = uuid.uuid1()
+            cache[key] = pdf_obj
+            return jsonify(
+                key=key,
+                status="success"
+            )
 
-@app.route("/transcript", methods=['GET'])
-def transcript():
-    return session['files'][-1].generateTranscript()
+        return "Unable to perform operation"
 
-@app.route("/", methods=['GET'])
-def set_session():
-    session['files'] = list()
-    return "Session successfully set!"
+@app.route("/speech", methods=['POST'])
+def speech():
+    speech_obj = TTS(request.form['transcript'])
+    return send_file(speech_obj.textToSpeech())
+
