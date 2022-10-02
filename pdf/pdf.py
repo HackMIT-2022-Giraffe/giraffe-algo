@@ -19,7 +19,7 @@ class PDF:
         
 
     def __extractFeatures(self):
-        pdf_file = fitz.open(self.source)
+        pdf_file = fitz.open("pdf", self.source)
         images = defaultdict(list)
         text = defaultdict(list)
 
