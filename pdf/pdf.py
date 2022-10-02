@@ -5,7 +5,7 @@ import base64
 import os
 from PIL import Image
 from collections import defaultdict
-from gtts import gTTS
+from google.cloud import texttospeech
 import openai
 
 
@@ -70,18 +70,37 @@ class PDF:
 
 class TTS:
     
-    def __init__(self, text: str):
+    def __init__(self, text: str, api_key=None):
         self.text = text
+        self.api_key = api_key
 
     def textToSpeech(self):
-    
+        
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.api_key
+        client = texttospeech.TextToSpeechClient()
+        
         text = self.text
-        if text == "quit":
-            quit()
+        
+        synthesis_input = texttospeech.SynthesisInput(text=text)
 
-        audio = gTTS(text=text, lang="en")
+        voice = texttospeech.VoiceSelectionParams(
+            name='en-GB-Wavenet-B',
+            language_code='en-GB'
+        )
 
-        #audio.save("audio.wav") - to save local audio
-        #os.system("audio.wav") - to play local saved audio
+        audio_config = texttospeech.AudioConfig(
+            audio_encoding=texttospeech.AudioEncoding.MP3
+        )
 
-        return audio
+        response = client.synthesize_speech(
+            input=synthesis_input,
+            voice=voice,
+            audio_config=audio_config
+        )
+
+        with open('audio.mp3','wb') as output:
+            output.write(response.audio_content)
+        
+        bytes = io.BytesIO(open('audio.mp3', 'rb').read())
+
+        return response.audio_content
