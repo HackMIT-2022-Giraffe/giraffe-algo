@@ -25,9 +25,9 @@ def upload():
         
         pdf_obj = PDF(request.form['pdf'], 0, os.getenv('GPT3_API_KEY'))
         session['files'].append(pdf_obj)
-        return "File successfully uploaded"
+        return {"text": pdf_obj.text, "figures": pdf_obj.images}
     else:
-        return "Unable to perform operation, too few operands"
+        return {"message": "Upload failed"}
 
 @app.route("/speech", methods=['POST'])
 def transcript():
