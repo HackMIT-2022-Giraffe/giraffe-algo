@@ -5,6 +5,7 @@ import base64
 import os
 from PIL import Image
 from collections import defaultdict
+from gtts import gTTS
 import openai
 
 
@@ -66,6 +67,24 @@ class PDF:
             transcript.append(response.choices[0].text)
 
         return "\n".join(transcript)
+
+class TTS:
+    
+    def __init__(self, text: str):
+        self.text = text
+
+    def textToSpeech(self):
+    
+        text = self.text
+        if text == "quit":
+            quit()
+
+        audio = gTTS(text=text, lang="en")
+
+        #audio.save("audio.wav") - to save local audio
+        #os.system("audio.wav") - to play local saved audio
+
+        return audio
 
 
        
