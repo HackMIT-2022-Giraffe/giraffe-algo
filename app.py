@@ -44,18 +44,6 @@ def upload_file():
 
         return "Unable to perform operation"
 
-
-@app.route("/generate-transcript", methods=["POST"])
-def generate_transcript():
-    if request.method == "POST":
-        key = request.args.get("key")
-        pdf = cache[key]
-        simp_text = pdf.generateTranscript()
-
-        return jsonify(
-            simpText=simp_text
-        )
-
 @app.route("/speech", methods=['POST'])
 def speech():
     speech_obj = TTS(request.form['transcript'])
