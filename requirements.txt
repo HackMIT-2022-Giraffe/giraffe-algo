@@ -1,0 +1,6 @@
+openai
+fitz
+pillow
+python-dotenv
+PyMuPDF==1.16.7
+flask
